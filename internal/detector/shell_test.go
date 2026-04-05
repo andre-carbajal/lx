@@ -91,3 +91,20 @@ func TestShellTypeString(t *testing.T) {
 		})
 	}
 }
+
+func TestWindowsProcessProvider_Creation(t *testing.T) {
+	provider := NewWindowsProcessProvider()
+	if provider == nil {
+		t.Error("NewWindowsProcessProvider() returned nil")
+	}
+}
+
+func TestDefaultProvider(t *testing.T) {
+	provider := DefaultProvider()
+	if provider == nil {
+		t.Error("DefaultProvider() returned nil")
+	}
+
+	// Verify it's a ProcessProvider
+	var _ ProcessProvider = provider
+}

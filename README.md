@@ -10,21 +10,29 @@
 ## Features
 
 - 🔄 Automatic shell detection (CMD vs PowerShell)
-- 📚 Static dictionary for ~50 common Linux commands
-- 🤖 AI-powered fallback for unknown commands (Claude Haiku)
-- ⚡ Fast path (<1ms) for known commands
-- 💾 Local JSON cache for AI translations
-- 🎯 Support for flags, arguments, and piped commands
+- 📚 Static dictionary for 26 core Linux commands
+- ⚡ Fast translations (<1ms) for known commands
+- 🚩 Support for flags, arguments, and complex commands
 - 🖥️ Windows native (CMD, PowerShell, PowerShell Core)
+- 🎯 --dry-run and --verbose modes for preview
+- 📜 Installation scripts for PowerShell and CMD
 
 ## Quick Start
 
 ```bash
-$ lx ls -la /home
-# Output: Get-ChildItem -Path /home -Force | Format-List
+$ lx ls -la
+Get-ChildItem | Format-List -Force
 
-$ lx cat file.txt | grep error
-# Output: Get-Content file.txt | Select-String error
+$ lx --dry mkdir test_folder
+New-Item -ItemType Directory test_folder
+
+$ lx --verbose pwd
+Shell: powershell
+Windows: Get-Location
+C:\Users\User\Documents
+
+$ lx grep "error" file.txt
+Select-String -Pattern error file.txt
 ```
 
 ## Roadmap
@@ -35,17 +43,21 @@ $ lx cat file.txt | grep error
   - Command parser (flags, args, pipes)
   - CI/CD automation
   
-- **Phase 1**: Dictionary & AI integration
-  - Static dictionary (~50 commands)
-  - Command translation engine
-  - Anthropic API integration
-  - Local JSON cache
+- **Phase 1** ✅: Dictionary & translation engine
+   - Static dictionary (~26 core commands)
+   - Command translation engine
+   - Executor with --dry-run and --verbose flags
+   - Installation scripts for PowerShell and CMD
+   
+- **Phase 2**: AI integration & expanded support
+   - Expand to ~50 commands
+   - Anthropic API integration for unknown commands
+   - Local JSON cache for AI translations
   
-- **Phase 2**: Installers & releases
-  - PowerShell installer
-  - CMD installer
-  - Automated GitHub releases
-  - Windows MSI installer
+- **Phase 3**: Installers & releases
+   - Automated GitHub releases
+   - Windows MSI installer
+   - Integration with package managers (Scoop, Chocolatey)
 
 ## Architecture
 

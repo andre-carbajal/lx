@@ -10,5 +10,5 @@ lint:
 	golangci-lint run
 
 clean:
-	rm -f coverage.out
+	-del coverage.out
 	go clean

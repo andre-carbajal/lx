@@ -13,7 +13,6 @@ const (
 	ShellUnknown
 )
 
-// ProcessProvider abstrae la lectura del proceso padre (inyección de dependencias)
 type ProcessProvider interface {
 	GetParentProcessName(pid int) (string, error)
 }
@@ -26,9 +25,7 @@ func New(provider ProcessProvider) *Detector {
 	return &Detector{provider: provider}
 }
 
-// Detect retorna el tipo de shell, con override via LX_SHELL env var
 func (d *Detector) Detect() ShellType {
-	// Override via env var
 	if shell := os.Getenv("LX_SHELL"); shell != "" {
 		switch strings.ToLower(shell) {
 		case "cmd":
@@ -38,7 +35,6 @@ func (d *Detector) Detect() ShellType {
 		}
 	}
 
-	// Lectura via provider (Windows API)
 	ppid := os.Getppid()
 	parentName, err := d.provider.GetParentProcessName(ppid)
 	if err != nil {
@@ -56,7 +52,6 @@ func (d *Detector) Detect() ShellType {
 	}
 }
 
-// String retorna nombre legible del shell
 func (s ShellType) String() string {
 	switch s {
 	case ShellCMD:

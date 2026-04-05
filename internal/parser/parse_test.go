@@ -12,46 +12,52 @@ var testCases = []struct {
 	expectedArgs  []string
 	shouldError   bool
 }{
-	// Casos básicos
 	{"cmd only", "ls", "ls", []string{}, []string{}, false},
 	{"single flag short", "ls -l", "ls", []string{"-l"}, []string{}, false},
 	{"combined flags", "ls -la", "ls", []string{"-l", "-a"}, []string{}, false},
 	{"separate flags", "ls -l -a", "ls", []string{"-l", "-a"}, []string{}, false},
 	{"long flag", "ls --all", "ls", []string{"--all"}, []string{}, false},
 
-	// Argumentos
 	{"single arg", "ls /home", "ls", []string{}, []string{"/home"}, false},
 	{"flag and arg", "ls -l /home", "ls", []string{"-l"}, []string{"/home"}, false},
 	{"multiple args", "ls -la /home /tmp", "ls", []string{"-l", "-a"}, []string{"/home", "/tmp"}, false},
 
-	// Comillas
 	{"double quotes", `grep "hello world" file.txt`, "grep", []string{}, []string{"hello world", "file.txt"}, false},
 	{"single quotes", "grep 'hello world' file.txt", "grep", []string{}, []string{"hello world", "file.txt"}, false},
 
-	// Flags como argumentos (find -name) - en realidad se parsean como flags
-	// La decisión es: si empieza con "-", es un flag. El traductor sabrá qué hacer.
 	{"flag as arg", `find /home -name "*.txt"`, "find", []string{"-n", "-a", "-m", "-e"}, []string{"/home", "*.txt"}, false},
 
-	// Argumentos especiales
 	{"sed regex", `sed 's/foo/bar/g' input.txt`, "sed", []string{}, []string{"s/foo/bar/g", "input.txt"}, false},
 	{"awk braces", `awk '{print $1}' file.txt`, "awk", []string{}, []string{"{print $1}", "file.txt"}, false},
 
-	// Espacios múltiples
 	{"extra spaces", "  ls   -l  /home  ", "ls", []string{"-l"}, []string{"/home"}, false},
 
-	// Variables de entorno (sin expansión)
 	{"env var", "echo $HOME", "echo", []string{}, []string{"$HOME"}, false},
 
-	// Numeric flag (head -5)
 	{"numeric flag", "head -5", "head", []string{}, []string{"-5"}, false},
 
-	// Rutas con espacios
 	{"path with spaces double quotes", `ls "/home/user/my docs"`, "ls", []string{}, []string{"/home/user/my docs"}, false},
 
-	// Errores
+	{"multiple combined flags", "tar -xzvf", "tar", []string{"-x", "-z", "-v", "-f"}, []string{}, false},
+	{"flags with slashes (regex)", `grep "^[0-9]" file.txt`, "grep", []string{}, []string{"^[0-9]", "file.txt"}, false},
+	{"command with dash in name", "python-config", "python-config", []string{}, []string{}, false},
+	{"arg with special chars", `echo "hello@world.com"`, "echo", []string{}, []string{"hello@world.com"}, false},
+
+	{"pipe basic", "cat file.txt | wc -l", "cat", []string{}, []string{"file.txt"}, false},
+	{"pipe with flags", "ls -la | grep txt | head -10", "ls", []string{"-l", "-a"}, []string{}, false},
+
+	{"head with count", "head -20 file.txt", "head", []string{}, []string{"-20", "file.txt"}, false},
+	{"tail with count", "tail -n 5 logfile", "tail", []string{"-n"}, []string{"5", "logfile"}, false},
+
+	{"relative path", "cd ../src", "cd", []string{}, []string{"../src"}, false},
+	{"current directory", "ls ./", "ls", []string{}, []string{"./"}, false},
+	{"home directory", "cd ~", "cd", []string{}, []string{"~"}, false},
+
+	{"multiple tabs", "ls\t-l\t/home", "ls", []string{"-l"}, []string{"/home"}, false},
+
+	{"windows path", `cat "C:\\Users\\test\\file.txt"`, "cat", []string{}, []string{`C:\\Users\\test\\file.txt`}, false},
+
 	{"empty input", "", "", nil, nil, true},
-	// Nota: "ls /home/user/my docs" se parsea como ["ls", "/home/user/my", "docs"] - es válido
-	// El usuario debería usar comillas si quiere un arg con espacios
 }
 
 func TestParse(t *testing.T) {
@@ -105,7 +111,6 @@ func TestParseWithPipes(t *testing.T) {
 				return
 			}
 
-			// Count pipe segments
 			count := 1
 			current := cmd
 			for current.Pipe != nil {

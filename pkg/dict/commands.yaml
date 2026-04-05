@@ -1,0 +1,341 @@
+commands:
+  # Navegación (5)
+  ls:
+    description: "List directory contents"
+    cmd:  "dir {{flags}} {{args}}"
+    ps:   "Get-ChildItem {{flags}} {{args}}"
+    schema:
+      args: { type: "paths", multiple: true, optional: true }
+      allowPipe: true
+    flags:
+      "-l":
+        cmd: ""
+        ps: "| Format-List"
+      "-a":
+        cmd: "/a"
+        ps: "-Force"
+      "-la":
+        cmd: "/a"
+        ps: "-Force | Format-List"
+      "-R":
+        cmd: "/s"
+        ps: "-Recurse"
+      "-r":
+        cmd: "/s"
+        ps: "-Recurse"
+
+  cd:
+    description: "Change directory"
+    cmd:  "cd {{args}}"
+    ps:   "Set-Location {{args}}"
+    schema:
+      args: { type: "paths", multiple: false, optional: false, minCount: 1 }
+      allowPipe: false
+    flags: {}
+
+  pwd:
+    description: "Print working directory"
+    cmd:  "cd"
+    ps:   "Get-Location"
+    schema:
+      args: { type: "free", multiple: false, optional: true }
+      allowPipe: false
+    flags: {}
+
+  pushd:
+    description: "Push directory onto stack"
+    cmd:  "pushd {{args}}"
+    ps:   "Push-Location {{args}}"
+    schema:
+      args: { type: "paths", multiple: false, optional: false, minCount: 1 }
+      allowPipe: false
+    flags: {}
+
+  popd:
+    description: "Pop directory from stack"
+    cmd:  "popd"
+    ps:   "Pop-Location"
+    schema:
+      args: { type: "free", multiple: false, optional: true }
+      allowPipe: false
+    flags: {}
+
+  # Archivos (6)
+  cp:
+    description: "Copy files or directories"
+    cmd:  "copy {{flags}} {{source}} {{dest}}"
+    ps:   "Copy-Item {{source}} {{dest}} {{flags}}"
+    schema:
+      args: { type: "paths", multiple: true, optional: false, minCount: 2 }
+      allowPipe: false
+      maxArgs: 2
+    flags:
+      "-r":
+        cmd: "/s"
+        ps: "-Recurse"
+      "-R":
+        cmd: "/s"
+        ps: "-Recurse"
+      "-i":
+        cmd: ""
+        ps: "-Confirm"
+
+  mv:
+    description: "Move or rename files"
+    cmd:  "move {{flags}} {{source}} {{dest}}"
+    ps:   "Move-Item {{source}} {{dest}} {{flags}}"
+    schema:
+      args: { type: "paths", multiple: true, optional: false, minCount: 2 }
+      allowPipe: false
+      maxArgs: 2
+    flags:
+      "-i":
+        cmd: ""
+        ps: "-Confirm"
+
+  rm:
+    description: "Remove files or directories"
+    cmd:  "del {{flags}} {{args}}"
+    ps:   "Remove-Item {{args}} {{flags}}"
+    schema:
+      args: { type: "paths", multiple: true, optional: false, minCount: 1 }
+      allowPipe: false
+    flags:
+      "-r":
+        cmd: "/s"
+        ps: "-Recurse"
+      "-R":
+        cmd: "/s"
+        ps: "-Recurse"
+      "-f":
+        cmd: "/q"
+        ps: "-Force"
+      "-i":
+        cmd: ""
+        ps: "-Confirm"
+
+  mkdir:
+    description: "Create directories"
+    cmd:  "mkdir {{args}}"
+    ps:   "New-Item -ItemType Directory {{args}}"
+    schema:
+      args: { type: "paths", multiple: true, optional: false, minCount: 1 }
+      allowPipe: false
+    flags:
+      "-p":
+        cmd: ""
+        ps: "-Force"
+
+  touch:
+    description: "Create empty files or update timestamps"
+    cmd:  "type nul > {{args}}"
+    ps:   "New-Item -ItemType File {{args}} -Force"
+    schema:
+      args: { type: "paths", multiple: true, optional: false, minCount: 1 }
+      allowPipe: false
+    flags: {}
+
+  find:
+    description: "Search for files"
+    cmd:  "dir {{flags}} {{args}} /s"
+    ps:   "Get-ChildItem {{args}} {{flags}} -Recurse"
+    schema:
+      args: { type: "paths", multiple: true, optional: true }
+      allowPipe: true
+    flags:
+      "-name":
+        cmd: "/b"
+        ps: "-Filter"
+      "-type":
+        cmd: ""
+        ps: "-ItemType"
+
+  # Texto (7)
+  cat:
+    description: "Display file contents"
+    cmd:  "type {{args}}"
+    ps:   "Get-Content {{args}}"
+    schema:
+      args: { type: "paths", multiple: true, optional: false, minCount: 1 }
+      allowPipe: true
+    flags: {}
+
+  grep:
+    description: "Search text in files"
+    cmd:  "findstr {{flags}} {{pattern}} {{files}}"
+    ps:   "Select-String -Pattern {{pattern}} {{files}} {{flags}}"
+    schema:
+      args: { type: "pattern+files", multiple: true, optional: true }
+      allowPipe: true
+    flags:
+      "-r":
+        cmd: "/s"
+        ps: "-Recurse"
+      "-i":
+        cmd: "/i"
+        ps: "-IgnoreCase"
+      "-n":
+        cmd: "/n"
+        ps: "-LineNumber"
+      "-v":
+        cmd: "/v"
+        ps: "-NotMatch"
+
+  head:
+    description: "Display first lines of file"
+    cmd:  "more +1 {{args}} | more"
+    ps:   "Get-Content {{args}} | Select-Object -First {{count}}"
+    schema:
+      args: { type: "paths", multiple: true, optional: false, minCount: 1 }
+      allowPipe: true
+    flags:
+      "-n":
+        cmd: ""
+        ps: ""
+
+  tail:
+    description: "Display last lines of file"
+    cmd:  "powershell -Command \"Get-Content {{args}} | Select-Object -Last {{count}}\""
+    ps:   "Get-Content {{args}} -Tail {{count}}"
+    schema:
+      args: { type: "paths", multiple: true, optional: false, minCount: 1 }
+      allowPipe: true
+    flags:
+      "-n":
+        cmd: ""
+        ps: ""
+
+  sort:
+    description: "Sort lines"
+    cmd:  "sort {{args}}"
+    ps:   "Get-Content {{args}} | Sort-Object"
+    schema:
+      args: { type: "paths", multiple: true, optional: true }
+      allowPipe: true
+    flags:
+      "-r":
+        cmd: "/r"
+        ps: "-Descending"
+      "-n":
+        cmd: "/+{{offset}}"
+        ps: ""
+
+  echo:
+    description: "Display text"
+    cmd:  "echo {{args}}"
+    ps:   "Write-Host {{args}}"
+    schema:
+      args: { type: "free", multiple: true, optional: true }
+      allowPipe: true
+    flags:
+      "-n":
+        cmd: ""
+        ps: "-NoNewline"
+
+  wc:
+    description: "Count lines, words, characters"
+    cmd:  "find {{args}} /c"
+    ps:   "Get-Content {{args}} | Measure-Object -Line -Word -Character"
+    schema:
+      args: { type: "paths", multiple: true, optional: true }
+      allowPipe: true
+    flags:
+      "-l":
+        cmd: ""
+        ps: ""
+      "-w":
+        cmd: ""
+        ps: ""
+      "-c":
+        cmd: ""
+        ps: ""
+
+  # Red (3)
+  curl:
+    description: "Transfer data via URL"
+    cmd:  "powershell -Command \"Invoke-WebRequest {{url}} {{flags}}\""
+    ps:   "Invoke-WebRequest {{url}} {{flags}}"
+    schema:
+      args: { type: "free", multiple: false, optional: false, minCount: 1 }
+      allowPipe: true
+    flags:
+      "-o":
+        cmd: "-OutFile"
+        ps: "-OutFile"
+      "-X":
+        cmd: "-Method"
+        ps: "-Method"
+
+  ping:
+    description: "Test network connectivity"
+    cmd:  "ping {{args}}"
+    ps:   "Test-Connection {{args}} -Count 4"
+    schema:
+      args: { type: "free", multiple: false, optional: false, minCount: 1 }
+      allowPipe: false
+    flags:
+      "-c":
+        cmd: "-n"
+        ps: "-Count"
+
+  ipconfig:
+    description: "Show network configuration"
+    cmd:  "ipconfig {{flags}}"
+    ps:   "Get-NetIPAddress {{flags}}"
+    schema:
+      args: { type: "free", multiple: false, optional: true }
+      allowPipe: false
+    flags:
+      "-a":
+        cmd: "/all"
+        ps: ""
+
+  # Procesos (2)
+  ps:
+    description: "List processes"
+    cmd:  "tasklist {{flags}}"
+    ps:   "Get-Process {{flags}}"
+    schema:
+      args: { type: "free", multiple: true, optional: true }
+      allowPipe: true
+    flags: {}
+
+  kill:
+    description: "Terminate process"
+    cmd:  "taskkill /pid {{pid}} {{flags}}"
+    ps:   "Stop-Process -Id {{pid}} {{flags}}"
+    schema:
+      args: { type: "free", multiple: false, optional: false, minCount: 1 }
+      allowPipe: false
+    flags:
+      "-9":
+        cmd: "/f"
+        ps: "-Force"
+
+  # Sistema (3)
+  clear:
+    description: "Clear terminal screen"
+    cmd:  "cls"
+    ps:   "Clear-Host"
+    schema:
+      args: { type: "free", multiple: false, optional: true }
+      allowPipe: false
+    flags: {}
+
+  date:
+    description: "Display or set date and time"
+    cmd:  "date /t && time /t"
+    ps:   "Get-Date"
+    schema:
+      args: { type: "free", multiple: false, optional: true }
+      allowPipe: false
+    flags: {}
+
+  env:
+    description: "Show environment variables"
+    cmd:  "set"
+    ps:   "Get-ChildItem Env:"
+    schema:
+      args: { type: "free", multiple: true, optional: true }
+      allowPipe: true
+    flags: {}
