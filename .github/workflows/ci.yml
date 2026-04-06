@@ -4,15 +4,13 @@ on:
   push:
     branches:
       - main
-    tags:
-      - 'v*'
   pull_request:
     branches:
       - main
 
 jobs:
   build-and-test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -20,64 +18,11 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.26.1'
-
-      - name: Determine version
-        id: version
-        if: github.event_name != 'pull_request'
-        run: |
-          if ("${{ github.ref }}".StartsWith('refs/tags/v')) {
-            $tag = "${{ github.ref }}".Replace('refs/tags/', '')
-            echo "LX_VERSION=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          } else {
-            echo "LX_VERSION=dev" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          }
-
-      - name: Create dist directory
-        if: github.event_name != 'pull_request'
-        run: mkdir -p dist
-
-      - name: Build
-        if: github.event_name != 'pull_request'
-        run: go build -ldflags "-X 'main.Version=${{ env.LX_VERSION }}'" -o dist/lx.exe ./cmd/lx
 
       - name: Run tests
         run: go test ./... -v
 
-      - name: Upload executable
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
+      - name: Run linter
+        uses: golangci/golangci-lint-action@v3
         with:
-          name: lx-executable
-          path: dist/lx.exe
-
-  create-release:
-    needs: build-and-test
-    runs-on: windows-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.26.1'
-
-      - name: Extract version from tag
-        id: version
-        run: |
-          $tag = "${{ github.ref }}".Replace('refs/tags/', '')
-          echo "VERSION=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      - name: Create dist directory
-        run: mkdir -p dist
-
-      - name: Build release binary
-        run: go build -ldflags "-X 'main.Version=${{ env.VERSION }}'" -o dist/lx.exe ./cmd/lx
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/lx.exe
-          tag_name: ${{ env.VERSION }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          version: latest
