@@ -44,7 +44,7 @@ jobs:
         run: go test ./... -v -coverprofile=coverage.out
 
       - name: Generate coverage report
-        run: go tool cover -func=coverage.out
+        run: go tool cover -func coverage.out
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
