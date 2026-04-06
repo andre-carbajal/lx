@@ -95,7 +95,7 @@ make build
 ### Running Tests
 
 ```bash
-make test        # Run all tests with coverage
+make test        # Run all tests
 make lint        # Run linter
 make clean       # Clean build artifacts
 ```

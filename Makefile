@@ -4,11 +4,10 @@ build:
 	go build ./cmd/lx
 
 test:
-	go test ./... -v -coverprofile=coverage.out
+	go test ./... -v
 
 lint:
 	golangci-lint run
 
 clean:
-	-del coverage.out
 	go clean

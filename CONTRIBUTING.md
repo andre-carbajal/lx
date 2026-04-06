@@ -41,7 +41,7 @@ make build       # Compiles to ./lx (or ./lx.exe on Windows)
 ### Testing
 
 ```bash
-make test        # Runs all tests with coverage report
+make test        # Runs all tests
 ```
 
 ### Linting
@@ -53,16 +53,16 @@ make lint        # Runs golangci-lint
 ### Cleaning
 
 ```bash
-make clean       # Removes build artifacts and coverage.out
+make clean       # Removes build artifacts
 ```
 
 ## Code Standards
 
 - All pull requests must:
-  - Pass `make lint` without warnings
-  - Pass `make test` with ≥80% code coverage
-  - Include unit tests for new functionality
-  - Have clear commit messages (Conventional Commits recommended)
+   - Pass `make lint` without warnings
+   - Pass `make test` without errors
+   - Include unit tests for new functionality
+   - Have clear commit messages (Conventional Commits recommended)
 
 ## Commit Message Format
 
